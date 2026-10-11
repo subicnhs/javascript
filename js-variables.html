@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JavaScript in HTML: Interactive Web Applications</title>
+<style>
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --text: #1c2433;
+  --muted: #5a6478;
+  --line: #dde3ee;
+  --accent: #1f5fbf;
+  --accent-soft: #e6eefb;
+  --code-bg: #12182a;
+  --code-text: #e8ecf6;
+  --ok: #2e8b57;
+}
+:root:not([data-theme="light"]) {
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1420;
+    --card: #181f30;
+    --text: #e8ecf6;
+    --muted: #a3adc2;
+    --line: #2a3350;
+    --accent: #6ea2ff;
+    --accent-soft: #1f2b47;
+    --code-bg: #0a0e19;
+    --code-text: #e8ecf6;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1420;
+  --card: #181f30;
+  --text: #e8ecf6;
+  --muted: #a3adc2;
+  --line: #2a3350;
+  --accent: #6ea2ff;
+  --accent-soft: #1f2b47;
+  --code-bg: #0a0e19;
+  --code-text: #e8ecf6;
+}
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 64px); scroll-behavior: smooth; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+code, pre, textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace; }
+
+/* Header + nav */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+.bar {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
+.brand { font-weight: 700; white-space: nowrap; color: var(--text); text-decoration: none; }
+nav { overflow-x: auto; flex: 1; }
+nav ul { list-style: none; display: flex; gap: 4px; margin: 0; padding: 0; }
+nav a {
+  display: block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: .95rem;
+}
+nav a:hover, nav a:focus-visible { background: var(--accent-soft); color: var(--accent); }
+a:focus-visible, button:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Layout */
+main { max-width: 960px; margin: 0 auto; padding: 0 16px 48px; }
+.hero { padding: 40px 0 16px; }
+.hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.15; margin: 0 0 12px; }
+.hero p { color: var(--muted); font-size: clamp(1rem, 2.4vw, 1.2rem); margin: 0; max-width: 60ch; }
+.group-title { font-size: 1.5rem; margin: 40px 0 4px; }
+section.slide {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 16px;
+}
+section.slide h3 { margin: 0 0 12px; font-size: 1.3rem; }
+.slide-no { display: block; color: var(--muted); font-size: .85rem; margin-bottom: 4px; }
+section.slide p { margin: 8px 0; }
+section.slide ul, section.slide ol { margin: 8px 0; padding-left: 1.3rem; }
+section.slide li { margin: 6px 0; }
+.note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; margin-top: 14px; }
+
+pre.code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 14px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+  font-size: .9rem;
+  line-height: 1.5;
+  tab-size: 2;
+}
+.output { background: var(--accent-soft); border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
+button, .btn {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+button.secondary { background: transparent; color: var(--accent); }
+button:hover { filter: brightness(1.1); }
+.try { margin-top: 4px; }
+
+.flow-img { width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); display: block; margin-top: 12px; }
+
+/* Flowchart (slide 14) */
+.flow { display: flex; flex-direction: column; align-items: center; gap: 0; margin: 16px 0; font-size: .95rem; }
+.node { padding: 10px 18px; border: 2px solid; text-align: center; background: var(--card); max-width: 100%; }
+.node.oval { border-radius: 999px; border-color: #3a9d5d; background: rgba(58,157,93,.15); }
+.node.io { border-color: #2f7fd6; background: rgba(47,127,214,.15); transform: skewX(-12deg); }
+.node.io span { display: inline-block; transform: skewX(12deg); }
+.node.dec { border-color: #d64545; background: rgba(214,69,69,.15); border-radius: 10px; }
+.arrow { width: 2px; height: 22px; background: var(--muted); position: relative; }
+.arrow::after { content: ""; position: absolute; bottom: -1px; left: -4px; border: 5px solid transparent; border-top: 8px solid var(--muted); border-bottom: 0; }
+.branches { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 480px; }
+.branch { display: flex; flex-direction: column; align-items: center; }
+.branch .label { font-weight: 700; margin-bottom: 4px; }
+
+/* Symbols list */
+.symbols { display: grid; gap: 8px; padding: 0; list-style: none; margin: 12px 0; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.symbols li { background: var(--accent-soft); border-radius: 8px; padding: 8px 12px; margin: 0; }
+
+/* Compiler */
+.compiler { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-top: 16px; overflow: hidden; }
+.tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px; border-bottom: 1px solid var(--line); background: var(--accent-soft); }
+.tab { background: transparent; color: var(--text); border: 1px solid transparent; padding: 6px 14px; }
+.tab[aria-selected="true"] { background: var(--card); border-color: var(--line); color: var(--accent); font-weight: 600; }
+.tabs .spacer { flex: 1; }
+.workspace { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 860px) {
+  .workspace { grid-template-columns: 1fr 1fr; }
+  .editor-pane { border-right: 1px solid var(--line); }
+}
+textarea.editor {
+  display: none;
+  width: 100%;
+  height: 340px;
+  border: 0;
+  resize: vertical;
+  padding: 14px;
+  background: var(--code-bg);
+  color: var(--code-text);
+  font-size: .9rem;
+  line-height: 1.5;
+  tab-size: 2;
+  white-space: pre;
+  overflow: auto;
+}
+textarea.editor.active { display: block; }
+.pane-title { font-size: .85rem; color: var(--muted); padding: 6px 12px; border-bottom: 1px solid var(--line); background: var(--card); }
+iframe.preview { width: 100%; height: 220px; border: 0; background: #fff; display: block; }
+.console { background: var(--code-bg); color: var(--code-text); height: 160px; overflow: auto; padding: 8px 12px; font-size: .85rem; }
+.console .line { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,.08); white-space: pre-wrap; word-break: break-word; }
+.console .warn { color: #f2c94c; }
+.console .error { color: #ff7b7b; }
+.console .empty { color: #8a94ab; }
+.console-head { display: flex; justify-content: space-between; align-items: center; background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 4px 12px; font-size: .85rem; color: var(--muted); }
+.console-head button { padding: 2px 10px; font-size: .8rem; }
+.hint { color: var(--muted); font-size: .9rem; margin: 8px 0 0; }
+
+footer { text-align: center; color: var(--muted); padding: 24px 16px 32px; font-size: .9rem; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="#top">Lesson 2: JavaScript in HTML</a>
+    <nav aria-label="Lesson sections">
+      <ul>
+        <li><a href="#objectives">Objectives</a></li>
+        <li><a href="#variables">Variables</a></li>
+        <li><a href="#functions">Functions</a></li>
+        <li><a href="#operators">Operators</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#practice">Practice</a></li>
+        <li><a href="#assessment">Assessment</a></li>
+        <li><a href="#compiler">Compiler</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <p style="margin-bottom:8px"><strong>Lesson 2</strong></p>
+    <h1>JavaScript in HTML: Interactive Web Applications</h1>
+    <p>Variables • Data Types • Functions • Operators • Events</p>
+    <p style="margin-top:8px">Senior High School | Computer Programming</p>
+  </div>
+
+  <section class="slide" id="objectives">
+    <span class="slide-no">Slide 2</span>
+    <h3>Learning Objectives</h3>
+    <p>By the end of this lesson, learners can:</p>
+    <ul><li>Declare and use variables and common JavaScript data types.</li><li>Create and call functions inside an HTML webpage.</li><li>Solve problems using JavaScript operators.</li><li>Respond to user actions using event handlers and event listeners.</li></ul>
+  </section>
+  <h2 class="group-title" id="basics">Review and Setup</h2>
+  <section class="slide">
+    <span class="slide-no">Slide 3</span>
+    <h3>Review: HTML + CSS + JavaScript</h3>
+    <ul><li><strong>HTML</strong> = structure and content</li><li><strong>CSS</strong> = appearance and layout</li><li><strong>JavaScript</strong> = behavior and interactivity</li></ul><p class="note">Example: HTML creates a button; JavaScript responds when the button is clicked.</p>
+    
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 4</span>
+    <h3>Where JavaScript Goes in HTML</h3>
+    <ul><li>Write JavaScript inside a <code>&lt;script&gt;</code> element, often before <code>&lt;/body&gt;</code>.</li><li>The browser runs the script when it loads or when an event occurs.</li></ul><pre class="code">&lt;button id="hello"&gt;Say Hello&lt;/button&gt;
+&lt;script&gt;
+  document.getElementById("hello").onclick = function() {
+    alert("Hello, class!");
+  };
+&lt;/script&gt;</pre>
+    <button class="try" data-example="s4">Try it in the compiler</button>
+  </section>
+  <h2 class="group-title" id="variables">Variables and Data Types</h2>
+  <section class="slide">
+    <span class="slide-no">Slide 5</span>
+    <h3>What Is a Variable?</h3>
+    <ul><li>A variable is a named container for a value.</li><li>Use <code>let</code> for values that may change.</li><li>Use <code>const</code> for values that should not be reassigned.</li><li>Avoid <code>var</code> in new beginner projects.</li></ul><pre class="code">let studentName = "Ana";
+let score = 85;
+const passingScore = 75;
+score = 90;  // allowed
+// passingScore = 80; // not allowed</pre>
+    <button class="try" data-example="s5">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 6</span>
+    <h3>Variable Naming Rules</h3>
+    <ul><li>Names can include letters, digits, _ and $.</li><li>Names cannot begin with a digit.</li><li>Names are case-sensitive: score ≠ Score.</li><li>Do not use reserved keywords.</li><li>Use descriptive camelCase names.</li></ul><pre class="code">let totalScore = 95;  // good
+let studentAge = 17;  // good
+// let 1score = 95;  // invalid</pre>
+    <button class="try" data-example="s6">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 7</span>
+    <h3>JavaScript Data Types</h3>
+    <ul><li><strong>String:</strong> text — "Hello"</li><li><strong>Number:</strong> integers and decimals — 12, 3.5</li><li><strong>Boolean:</strong> true or false</li><li><strong>Undefined:</strong> declared but not assigned</li><li><strong>Null:</strong> intentionally empty</li></ul><p class="note">Objects and arrays store related data.</p><pre class="code">let name = "Mia";
+let age = 17;
+let enrolled = true;
+let middleName = null;
+let subjects = ["HTML", "JavaScript"];</pre>
+    <button class="try" data-example="s7">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 8</span>
+    <h3>Check a Data Type</h3>
+    <p>Use <code>typeof</code> to inspect the type of a value.</p><p class="note">Remember: values entered into HTML input fields are strings by default.</p><pre class="code">let count = 10;
+console.log(typeof count); // "number"
+let input = "10";
+console.log(typeof input); // "string"
+console.log(Number(input) + 5); // 15</pre>
+    <button class="try" data-example="s8">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 9</span>
+    <h3>Getting Values from HTML</h3>
+    <ul><li>Select an HTML element by its id.</li><li>Read input with <code>.value</code>.</li><li>Use <code>Number(...)</code> when doing arithmetic.</li></ul><pre class="code">&lt;input id="age" type="number"&gt;
+&lt;button onclick="showAge()"&gt;Check&lt;/button&gt;
+&lt;p id="result"&gt;&lt;/p&gt;
+&lt;script&gt;
+function showAge() {
+  let age = Number(document.getElementById("age").value);
+  document.getElementById("result").textContent = age;
+}
+&lt;/script&gt;</pre>
+    <button class="try" data-example="s9">Try it in the compiler</button>
+  </section>
+  <h2 class="group-title" id="functions">Functions</h2>
+  <section class="slide">
+    <span class="slide-no">Slide 10</span>
+    <h3>What Is a Function?</h3>
+    <ul><li>A function groups reusable instructions.</li><li>It runs when you call its name.</li><li>Parameters receive values; <code>return</code> sends back a result.</li></ul><pre class="code">function greet(name) {
+  return "Hello, " + name + "!";
+}
+let message = greet("Ana");
+console.log(message); // Hello, Ana!</pre>
+    <button class="try" data-example="s10">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 11</span>
+    <h3>Functions in a Webpage</h3>
+    <ul><li>HTML displays the content.</li><li>JavaScript computes and updates the page.</li><li><code>textContent</code> safely changes visible text.</li></ul><pre class="code">&lt;p id="output"&gt;&lt;/p&gt;
+&lt;script&gt;
+function add(a, b) {
+  return a + b;
+}
+document.getElementById("output").textContent =
+  "Sum: " + add(5, 7);
+&lt;/script&gt;</pre>
+    <button class="try" data-example="s11">Try it in the compiler</button>
+  </section>
+  <h2 class="group-title" id="operators">Operators</h2>
+  <section class="slide">
+    <span class="slide-no">Slide 12</span>
+    <h3>Arithmetic Operators</h3>
+    <ul class="symbols"><li><code>+</code> Addition</li><li><code>−</code> Subtraction</li><li><code>*</code> Multiplication</li><li><code>/</code> Division</li><li><code>%</code> Remainder (modulo)</li><li><code>**</code> Exponent</li></ul><p class="note">Example: 17 % 5 = 2</p><pre class="code">let a = 17, b = 5;
+console.log(a + b);  // 22
+console.log(a / b);  // 3.4
+console.log(a % b);  // 2
+console.log(2 ** 3); // 8</pre>
+    <button class="try" data-example="s12">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 13</span>
+    <h3>Assignment Operators</h3>
+    <ul class="symbols"><li><code>=</code> Assign a value</li><li><code>+=</code> Add then assign</li><li><code>-=</code> Subtract then assign</li><li><code>*=</code> Multiply then assign</li><li><code>/=</code> Divide then assign</li></ul><pre class="code">let points = 10;
+points += 5;  // 15
+points -= 3;  // 12
+points *= 2;  // 24</pre>
+    <button class="try" data-example="s13">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 14</span>
+    <h3>Comparison Operators</h3>
+    <ul class="symbols"><li><code>===</code> Strict equality (value and type)</li><li><code>!==</code> Strict inequality</li><li><code>&gt;</code> Greater than</li><li><code>&lt;</code> Less than</li><li><code>&gt;=</code> Greater or equal</li><li><code>&lt;=</code> Less or equal</li></ul><p class="note">Comparisons return true or false.</p><pre class="code">console.log(10 &gt; 7);       // true
+console.log(10 === "10"); // false
+console.log(75 &gt;= 75);     // true</pre>
+    <button class="try" data-example="s14">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 15</span>
+    <h3>Logical Operators</h3>
+    <ul class="symbols"><li><code style="background-color: #918d8d33;">&amp;&amp;</code> AND: both conditions must be true</li><li><code style="background-color: #918d8d33;">||</code> OR: at least one condition must be true</li><li><code style="background-color: #918d8d33;">!</code> NOT: reverses a Boolean</li></ul><p class="note">Use them when checking multiple requirements.</p><pre class="code">let score = 85;
+let submitted = true;
+let passed = score &gt;= 75 &amp;&amp; submitted;
+console.log(passed); // true</pre>
+    <button class="try" data-example="s15">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 16</span>
+    <h3>Problem Solving: Pass or Fail</h3>
+    <p><strong>Problem:</strong> A learner passes if the score is at least 75.</p><p><strong>Algorithm:</strong> read score → compare with 75 → show result.</p><pre class="code">let score = 82;
+let result = score &gt;= 75 ? "Passed" : "Failed";
+console.log(result); // Passed</pre>
+    <button class="try" data-example="s16">Try it in the compiler</button>
+  </section>
+  <h2 class="group-title" id="events">Events</h2>
+  <section class="slide">
+    <span class="slide-no">Slide 17</span>
+    <h3>What Is an Event?</h3>
+    <ul><li>An event is an action detected by the browser.</li><li>Examples: click, input, change, submit, mouseover.</li><li>JavaScript can respond when an event happens.</li></ul><p class="note">An event handler is the code that runs in response.</p>
+    
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 18</span>
+    <h3>Event Handler: onclick</h3>
+    <ul><li>An inline event handler is easy to demonstrate.</li><li>For larger projects, <code>addEventListener</code> is generally preferred because it keeps HTML and JavaScript separate.</li></ul><pre class="code">&lt;button onclick="sayHello()"&gt;Click Me&lt;/button&gt;
+&lt;p id="message"&gt;&lt;/p&gt;
+&lt;script&gt;
+function sayHello() {
+  document.getElementById("message").textContent =
+    "Welcome to JavaScript!";
+}
+&lt;/script&gt;</pre>
+    <button class="try" data-example="s18">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 19</span>
+    <h3>Event Listener: addEventListener</h3>
+    <ul><li><code>addEventListener</code> connects an event to a function.</li><li>It can support multiple listeners on the same element.</li><li>Use it after the relevant HTML element exists.</li></ul><pre class="code">&lt;button id="btn"&gt;Click Me&lt;/button&gt;
+&lt;p id="message"&gt;&lt;/p&gt;
+&lt;script&gt;
+document.getElementById("btn").addEventListener(
+  "click", function() {
+    document.getElementById("message").textContent = "Clicked!";
+  }
+);
+&lt;/script&gt;</pre>
+    <button class="try" data-example="s19">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 20</span>
+    <h3>Live Input Example</h3>
+    <ul><li>The <code>input</code> event runs as the user types.</li><li>This makes webpages respond immediately.</li></ul><pre class="code">&lt;input id="name" placeholder="Enter your name"&gt;
+&lt;p id="greeting"&gt;&lt;/p&gt;
+&lt;script&gt;
+document.getElementById("name").addEventListener(
+  "input", function(event) {
+    document.getElementById("greeting").textContent =
+      "Hello, " + event.target.value;
+  }
+);
+&lt;/script&gt;</pre>
+    <button class="try" data-example="s20">Try it in the compiler</button>
+  </section>
+  <h2 class="group-title" id="practice">Practice</h2>
+  <section class="slide">
+    <span class="slide-no">Slide 21</span>
+    <h3>Guided Practice: Two-Number Calculator</h3>
+    <p><strong>Task:</strong> Enter two numbers and click Add.</p><p><strong>Concepts:</strong> variables, Number(), function, + operator, click listener.</p><pre class="code">&lt;input id="num1" type="number"&gt;
+&lt;input id="num2" type="number"&gt;
+&lt;button id="addBtn"&gt;Add&lt;/button&gt;
+&lt;p id="answer"&gt;&lt;/p&gt;
+&lt;script&gt;
+function add(a, b) { return a + b; }
+document.getElementById("addBtn").addEventListener("click", () =&gt; {
+  const a = Number(document.getElementById("num1").value);
+  const b = Number(document.getElementById("num2").value);
+  document.getElementById("answer").textContent = add(a, b);
+});
+&lt;/script&gt;</pre>
+    <button class="try" data-example="s21">Try it in the compiler</button>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 22</span>
+    <h3>Independent Activity: Grade Checker</h3>
+    <p>Create one HTML file that includes:</p><ul><li>An input for student score (0–100).</li><li>A button labeled Check Result.</li><li>A JavaScript function that returns Passed or Failed.</li><li>An event listener that displays the result.</li><li>Validation for missing or out-of-range scores.</li></ul><p class="note"><strong>Challenge:</strong> show an appropriate message for scores 90 and above.</p><a class="btn" href="#compiler" style="display:inline-block;text-decoration:none;margin-top:8px">Open the compiler</a>
+    
+  </section>
+  <h2 class="group-title" id="assessment">Assessment</h2>
+  <section class="slide">
+    <span class="slide-no">Slide 23</span>
+    <h3>Assessment: Check Your Understanding</h3>
+    <ol><li>Which keyword declares a variable that can change?</li><li>What is the difference between "5" and 5?</li><li>What does return do in a function?</li><li>What is the result of 13 % 4?</li><li>Why is === often safer than ==?</li><li>Which event occurs when a button is clicked?</li><li>What does addEventListener() do?</li></ol>
+    
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 24</span>
+    <h3>Assessment Answers and Recap</h3>
+    <details>
+      <summary style="cursor:pointer;color:var(--accent);font-weight:600">Show answers</summary>
+      <ol>
+        <li>let</li><li>String versus number</li><li>Sends a value back to the caller</li><li>1</li><li>It checks both type and value</li><li>click</li><li>Registers a function for an event</li>
+      </ol>
+    </details>
+    <p class="note"><strong>Remember:</strong> HTML creates elements; JavaScript uses variables, functions, operators, and events to make them interactive.</p>
+  </section>
+  <section class="slide">
+    <span class="slide-no">Slide 25</span>
+    <h3>Exit Ticket</h3>
+    <p>Write one example each of:</p><ul><li>A variable and its data type</li><li>A function with a parameter</li><li>An arithmetic or comparison operator</li><li>A click event listener</li></ul><p>Explain how all four can work together in an HTML webpage.</p><a class="btn" href="#compiler" style="display:inline-block;text-decoration:none;margin-top:8px">Open the compiler</a>
+    
+  </section>
+
+  <!-- Compiler -->
+  <h2 class="group-title" id="compiler">Compiler</h2>
+  <p class="hint" style="margin-top:0">Write HTML, CSS, and JavaScript, then press Run (or Ctrl + Enter) to see the result and the console output.</p>
+
+  <div class="compiler">
+    <div class="tabs" role="tablist" aria-label="Code editors">
+      <button class="tab" role="tab" aria-selected="true" data-tab="html">HTML</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="css">CSS</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="js">JavaScript</button>
+      <span class="spacer"></span>
+      <button id="runBtn">Run</button>
+      <button id="resetBtn" class="secondary">Reset</button>
+    </div>
+    <div class="workspace">
+      <div class="editor-pane">
+        <textarea id="ed-html" class="editor active" spellcheck="false" aria-label="HTML code"></textarea>
+        <textarea id="ed-css" class="editor" spellcheck="false" aria-label="CSS code"></textarea>
+        <textarea id="ed-js" class="editor" spellcheck="false" aria-label="JavaScript code"></textarea>
+      </div>
+      <div class="output-pane">
+        <div class="pane-title">Output</div>
+        <iframe id="preview" class="preview" title="Output preview" sandbox="allow-scripts allow-modals"></iframe>
+        <div class="console-head"><span>Console</span><button id="clearBtn" class="secondary">Clear</button></div>
+        <div id="console" class="console" role="log" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>JavaScript in HTML: Interactive Web Applications</footer>
+
+<script>
+(function () {
+  /* ---------- Examples (taken from the lesson slides) ---------- */
+  var EXAMPLES = {
+  "s4": {
+    "html": "<button id=\"hello\">Say Hello<\/button>",
+    "css": "",
+    "js": "document.getElementById(\"hello\").onclick = function() {\n  alert(\"Hello, class!\");\n};"
+  },
+  "s5": {
+    "html": "",
+    "css": "",
+    "js": "let studentName = \"Ana\";\nlet score = 85;\nconst passingScore = 75;\nscore = 90;  // allowed\n// passingScore = 80; // not allowed"
+  },
+  "s6": {
+    "html": "",
+    "css": "",
+    "js": "let totalScore = 95;  // good\nlet studentAge = 17;  // good\n// let 1score = 95;  // invalid"
+  },
+  "s7": {
+    "html": "",
+    "css": "",
+    "js": "let name = \"Mia\";\nlet age = 17;\nlet enrolled = true;\nlet middleName = null;\nlet subjects = [\"HTML\", \"JavaScript\"];"
+  },
+  "s8": {
+    "html": "",
+    "css": "",
+    "js": "let count = 10;\nconsole.log(typeof count); // \"number\"\nlet input = \"10\";\nconsole.log(typeof input); // \"string\"\nconsole.log(Number(input) + 5); // 15"
+  },
+  "s9": {
+    "html": "<input id=\"age\" type=\"number\">\n<button onclick=\"showAge()\">Check<\/button>\n<p id=\"result\"><\/p>",
+    "css": "",
+    "js": "function showAge() {\n  let age = Number(document.getElementById(\"age\").value);\n  document.getElementById(\"result\").textContent = age;\n}"
+  },
+  "s10": {
+    "html": "",
+    "css": "",
+    "js": "function greet(name) {\n  return \"Hello, \" + name + \"!\";\n}\nlet message = greet(\"Ana\");\nconsole.log(message); // Hello, Ana!"
+  },
+  "s11": {
+    "html": "<p id=\"output\"><\/p>",
+    "css": "",
+    "js": "function add(a, b) {\n  return a + b;\n}\ndocument.getElementById(\"output\").textContent =\n  \"Sum: \" + add(5, 7);"
+  },
+  "s12": {
+    "html": "",
+    "css": "",
+    "js": "let a = 17, b = 5;\nconsole.log(a + b);  // 22\nconsole.log(a / b);  // 3.4\nconsole.log(a % b);  // 2\nconsole.log(2 ** 3); // 8"
+  },
+  "s13": {
+    "html": "",
+    "css": "",
+    "js": "let points = 10;\npoints += 5;  // 15\npoints -= 3;  // 12\npoints *= 2;  // 24\nconsole.log(points);"
+  },
+  "s14": {
+    "html": "",
+    "css": "",
+    "js": "console.log(10 > 7);       // true\nconsole.log(10 === \"10\"); // false\nconsole.log(75 >= 75);     // true"
+  },
+  "s15": {
+    "html": "",
+    "css": "",
+    "js": "let score = 85;\nlet submitted = true;\nlet passed = score >= 75 && submitted;\nconsole.log(passed); // true"
+  },
+  "s16": {
+    "html": "",
+    "css": "",
+    "js": "let score = 82;\nlet result = score >= 75 ? \"Passed\" : \"Failed\";\nconsole.log(result); // Passed"
+  },
+  "s18": {
+    "html": "<button onclick=\"sayHello()\">Click Me<\/button>\n<p id=\"message\"><\/p>",
+    "css": "",
+    "js": "function sayHello() {\n  document.getElementById(\"message\").textContent =\n    \"Welcome to JavaScript!\";\n}"
+  },
+  "s19": {
+    "html": "<button id=\"btn\">Click Me<\/button>\n<p id=\"message\"><\/p>",
+    "css": "",
+    "js": "document.getElementById(\"btn\").addEventListener(\n  \"click\", function() {\n    document.getElementById(\"message\").textContent = \"Clicked!\";\n  }\n);"
+  },
+  "s20": {
+    "html": "<input id=\"name\" placeholder=\"Enter your name\">\n<p id=\"greeting\"><\/p>",
+    "css": "",
+    "js": "document.getElementById(\"name\").addEventListener(\n  \"input\", function(event) {\n    document.getElementById(\"greeting\").textContent =\n      \"Hello, \" + event.target.value;\n  }\n);"
+  },
+  "s21": {
+    "html": "<input id=\"num1\" type=\"number\">\n<input id=\"num2\" type=\"number\">\n<button id=\"addBtn\">Add<\/button>\n<p id=\"answer\"><\/p>",
+    "css": "",
+    "js": "function add(a, b) { return a + b; }\ndocument.getElementById(\"addBtn\").addEventListener(\"click\", () => {\n  const a = Number(document.getElementById(\"num1\").value);\n  const b = Number(document.getElementById(\"num2\").value);\n  document.getElementById(\"answer\").textContent = add(a, b);\n});"
+  }
+};
+  var DEFAULT = EXAMPLES.s4;
+
+  var editors = {
+    html: document.getElementById('ed-html'),
+    css: document.getElementById('ed-css'),
+    js: document.getElementById('ed-js')
+  };
+  var tabs = document.querySelectorAll('.tab');
+  var preview = document.getElementById('preview');
+  var consoleEl = document.getElementById('console');
+
+  function load(example) {
+    editors.html.value = example.html;
+    editors.css.value = example.css;
+    editors.js.value = example.js;
+  }
+
+  function showTab(name) {
+    tabs.forEach(function (t) { t.setAttribute('aria-selected', t.dataset.tab === name ? 'true' : 'false'); });
+    Object.keys(editors).forEach(function (k) { editors[k].classList.toggle('active', k === name); });
+  }
+  tabs.forEach(function (t) { t.addEventListener('click', function () { showTab(t.dataset.tab); }); });
+
+  /* Tab key inserts two spaces; Ctrl/Cmd+Enter runs */
+  Object.keys(editors).forEach(function (k) {
+    editors[k].addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        var s = this.selectionStart, en = this.selectionEnd;
+        this.value = this.value.slice(0, s) + '  ' + this.value.slice(en);
+        this.selectionStart = this.selectionEnd = s + 2;
+      } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        run();
+      }
+    });
+  });
+
+  /* ---------- Console ---------- */
+  function clearConsole() {
+    consoleEl.innerHTML = '';
+  }
+  function emptyNote() {
+    if (!consoleEl.children.length) {
+      var d = document.createElement('div');
+      d.className = 'empty';
+      d.textContent = 'Console output will appear here.';
+      consoleEl.appendChild(d);
+    }
+  }
+  function addLine(level, text) {
+    var empty = consoleEl.querySelector('.empty');
+    if (empty) empty.remove();
+    var d = document.createElement('div');
+    d.className = 'line ' + level;
+    d.textContent = (level === 'error' ? '✖ ' : level === 'warn' ? '⚠ ' : '› ') + text;
+    consoleEl.appendChild(d);
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+  }
+  window.addEventListener('message', function (e) {
+    if (e.source !== preview.contentWindow) return;
+    var d = e.data;
+    if (d && d.__console) addLine(d.level, d.text);
+  });
+
+  /* Script injected into the preview to capture console + errors */
+  var CAPTURE = '(' + function () {
+    function fmt(v) {
+      if (typeof v === 'string') return v;
+      if (v === undefined) return 'undefined';
+      if (v instanceof Error) return v.name + ': ' + v.message;
+      if (typeof v === 'function') return String(v);
+      try { return JSON.stringify(v); } catch (err) { return String(v); }
+    }
+    function send(level, args) {
+      parent.postMessage({ __console: true, level: level, text: Array.prototype.map.call(args, fmt).join(' ') }, '*');
+    }
+    ['log', 'info', 'warn', 'error'].forEach(function (m) {
+      var orig = console[m];
+      console[m] = function () {
+        send(m === 'info' ? 'log' : m, arguments);
+        orig.apply(console, arguments);
+      };
+    });
+    window.addEventListener('error', function (e) {
+      send('error', [e.message + (e.lineno ? ' (line ' + e.lineno + ')' : '')]);
+    });
+  }.toString() + ')();';
+
+  function run() {
+    clearConsole();
+    emptyNote();
+    var doc =
+      '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+      '<script>' + CAPTURE + '<\/script>' +
+      '<style>body{font-family:system-ui,Arial,sans-serif;}</style>' +
+      '<style>' + editors.css.value + '</style></head><body>' +
+      editors.html.value +
+      '<script>' + editors.js.value + '<\/script></body></html>';
+    preview.srcdoc = doc;
+  }
+
+  document.getElementById('runBtn').addEventListener('click', run);
+  document.getElementById('clearBtn').addEventListener('click', function () { clearConsole(); emptyNote(); });
+  document.getElementById('resetBtn').addEventListener('click', function () { load(DEFAULT); showTab('html'); run(); });
+
+  /* "Try it" buttons on the lesson */
+  document.querySelectorAll('[data-example]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      load(EXAMPLES[b.dataset.example]);
+      showTab(EXAMPLES[b.dataset.example].html ? 'html' : 'js');
+      run();
+      document.getElementById('compiler').scrollIntoView();
+    });
+  });
+
+  load(DEFAULT);
+  run();
+})();
+</script>
+</body>
+</html>
